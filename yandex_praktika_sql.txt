@@ -1,0 +1,452 @@
+select last_name,
+       gender,
+       age,
+       connection_area as area,
+       percent_of_discount as discount
+from buyer 
+limit 6 offset 10
+
+
+
+SELECT поле_1,
+       поле_2,
+       поле_3
+             ...
+FROM таблица
+LIMIT 10 OFFSET 5; 
+Такой запрос выведет записи с 6 по 15
+
+
+ с 7 по 10 строку включительно. Код выглядит вот так:
+SELECT last_name,
+       gender,
+       age
+FROM buyer
+LIMIT 4 OFFSET 6;
+
+
+
+WHERE first_name in ('Андрей', 'Николай')
+and age < 38
+and last_name not in ('Иванов ','Кузнецов')
+
+select name,
+       date,
+       DATE_TRUNC ('week', date) as week_day,
+       radius
+from pizza
+     where price < 30 and radius > 37
+     or radius >= 35 and price > 35
+	 
+	 
+select name,
+       date,
+       EXTRACT ('week'from date) as week_day,
+       radius
+from pizza
+     where price < 30 and radius > 37
+     or radius >= 35 and price > 35
+	 
+	 
+SELECT --*--,
+date,
+--EXTRACT ('month' from date) as qqqq,
+--name,
+--quantity,
+FROM pizza
+--where EXTRACT ('month' from date) = 2 as a,
+    --and quantity != 1
+	
+------------------------------------------
+	SELECT date,
+       name,
+       DATE_TRUNC ('day',  date) as new ,
+       quantity
+FROM pizza
+where EXTRACT ('month' from date) = '2'
+and quantity != 1
+
+
+--------
+SELECT date, 
+ж, 
+name, 
+quantity 
+FROM pizza 
+WHERE DATE_TRUNC('month', date) = '2022-02-01' AND quantity != 1
+
+
+SELECT *
+--count(*)
+FROM hotdog
+WHERE vegan_sausage = 1
+        AND EXTRACT ('month' from date) = '1'
+        AND EXTRACT ('day' from date) >= '1'
+        AND EXTRACT ('day' from date) <= '5'
+		
+
+
+Сколько выручки принесли клиенты с браслетами 145900, 145783 и 145866, покупая сосиски с добавлением всех трёх соусов: горчицы, кетчупа и майонеза?		
+SELECT bracelet_id, 
+      --  price,
+      --  quantity,
+        sum(price*quantity) as cena
+      --  sum(cena) as itigo
+--count(*)
+FROM hotdog
+where bracelet_id in (145900,145783,145866)
+        and mayonnaise =1
+        and mustard = 1
+        and ketchup =1
+GROUP BY bracelet_id
+
+----------------
+
+Сравните продажи вегетарианских хот-догов с разным количеством ингредиентов. 
+Посчитайте, сколько раз заказывали хот-доги с вегетарианской сосиской, и сгруппируйте данные по количеству ингредиентов. 
+В итоговой таблице оставьте только те записи, где заказов меньше или равно 76.
+
+SELECT COUNT(*) vegan_sausage, 
+       ingredients 
+FROM hotdog 
+    WHERE vegan_sausage = 1 
+GROUP BY ingredients 
+HAVING COUNT (ingredients) <= 76;
+
+Дополните предыдущий запрос. Оставьте только те заказы, где сумма горчиц — больше 30. 
+Вам понадобится поле mustard: если горчицу добавили, это поле хранит значение 1.
+
+SELECT ingredients,
+       COUNT(ingredients)
+FROM hotdog
+WHERE vegan_sausage = 1
+GROUP BY ingredients
+HAVING COUNT(ingredients) <=76 AND SUM (mustard) > 30;
+
+---------------------------------------------------------------------------------
+
+Отобразите на экране список названий хот-догов, в которые хотя бы один раз добавляли майонез, горчицу или кетчуп. 
+В списке должны быть только те хот-доги, средняя выручка от продажи которых больше или равна 30.5.
+Нужные поля — name_hotdog, mustard, ketchup и mayonnaise. Если соус добавлен, значение поля равно 1.
+Оператор «больше или равно» – >=.
+
+
+SELECT name_hotdog
+       --AVG (price*quantity) as summa
+FROM hotdog
+WHERE mustard =1 or mayonnaise =1 or ketchup = 1
+GROUP BY name_hotdog
+HAVING AVG (price*quantity) >= 30.5
+
+
+--HAVING COUNT(ingredients) <=76 AND SUM (mustard) > 30;
+
+-------------------------------------------------------------
+
+
+Найдите самый дорогой хот-дог. Отобразите название хот-дога и его цену. Используйте поля name_hotdog и price.
+SELECT name_hotdog,
+       price
+FROM hotdog
+ORDER BY price DESC
+LIMIT 1
+
+-------------------------------------------------------
+Отберите три зоны первого подключения (поле connection_area) из таблицы buyer, где средняя скидка (поле percent_of_discount) была выше всего.
+
+SELECT connection_area,
+		AVG (percent_of_discount) --as sr_skidka
+FROM buyer
+		GROUP BY connection_area
+		Order by avg desc
+limit 3
+
+--------------------------------------------------------
+
+Посчитайте сумму выручки, полученную от продаж каждого хот-дога, за каждый месяц. 
+Отобразите в итоговой таблице номер месяца, название хот-дога и сумму выручки.
+
+SELECT name_hotdog,
+       EXTRACT ('month' from date) as data_m,
+       sum(price*quantity)
+FROM hotdog
+GROUP BY name_hotdog, data_m
+Order by data_m asc;
+
+Дополните предыдущий запрос. Отсортируйте таблицу по названию хот-дога в обратном алфавитном порядке, а затем — по месяцу в порядке возрастания.
+
+SELECT name_hotdog,
+       EXTRACT ('month' from date) as data_m,
+       sum(price*quantity)
+FROM hotdog
+GROUP BY name_hotdog, data_m
+Order by name_hotdog desc, data_m 
+
+-----------------------------ПРАКТИКА--------------------------------------------
+Подсчитайте максимальный и минимальный радиус пицц, которые покупали 13 марта 2022 года.
+select min(radius) as minim_r,
+       max(radius) as maxim_r
+from pizza
+where date = '2022-03-13'
+Group by date, name
+Order by minim_r asc, maxim_r desc
+limit 1
+
+
+Подсчитайте максимальный и минимальный радиус пиццы для каждого дня марта. 
+Отобразите в таблице дату, максимальное и минимальное значения. 
+Отсортируйте числа по убыванию.
+select date,
+       --name,
+        min(radius) as minim_r,
+        max(radius) as maxim_r
+from pizza
+where date between '2022-03-01' and '2022-03-31'
+Group by date
+Order by date desc
+-----------------------
+
+
+Посчитайте среднюю стоимость пиццы в зависимости от того, вегетарианская она или нет. 
+Отобразите на экране поле vegan_marker и поле со средней ценой.
+SELECT 
+       AVG(price),
+       vegan_marker
+FROM pizza
+group by vegan_marker
+-----
+4.
+Дополните предыдущий запрос. Добавьте группировку по месяцу. Отобразите в итоговой таблице:
+месяц в виде первого числа месяца,
+указатель, вегетарианская пицца или нет,
+среднюю стоимость пиццы.
+Отсортируйте данные по возрастанию: по месяцу и по указателю, вегетарианская ли пицца.
+SELECT 
+       AVG(price),
+       vegan_marker,
+       DATE_TRUNC ('month',  date) as new
+FROM pizza
+group by new, vegan_marker
+order by new asc, vegan_marker
+-------------------------------------
+5.
+Подсчитайте, сколько уникальных клиентов заказали каждую пиццу. Отобразите на экране название пиццы и число уникальных клиентов.
+SELECT COUNT(DISTINCT (bracelet_id)),
+       name
+FROM pizza
+Group by  name
+
+----------------------------------------
+
+6.
+Посмотрим на портрет клиента. 
+Какие три клиента принесли больше всего выручки за третью неделю года? 
+Отобразите на экране только поле с bracelet_id. Отсортируйте клиентов по убыванию выручки.
+select  bracelet_id
+        --name,
+        --sum(price*quantity) as cena
+from pizza
+where EXTRACT ('week' from date) = '3'
+Group by bracelet_id
+order by sum(price*quantity) desc
+limit 3
+-------------------------------------
+
+7.
+Теперь в таблице с клиентами (таблица buyer) найдите этих клиентов и посчитайте, сколько среди самых прибыльных клиентов женщин и мужчин.
+Отобразите на экране поле gender и число клиентов — лидеров по выручке, которые принадлежат к каждому полу. 
+Идентификаторы браслетов самых прибыльных клиентов — 145773, 145779, 145855.
+select  gender,
+        count(bracelet_id)
+from buyer
+where bracelet_id in (145773, 145779, 145855)
+group by gender
+-----------------------------------------
+
+8.
+Теперь изучим, какие зоны первого подключения популярны среди молодёжи. 
+Отобразите в итоговой таблице зону первого подключения, пол клиента и средний возраст. 
+Исследуйте только молодых людей младше 30 лет. 
+В итоговой таблице оставьте только тех клиентов, средний возраст которых меньше 23 лет. 
+Отсортируйте таблицу по зоне первого подключения в алфавитном порядке и по полу.
+SELECT 
+  connection_area, 
+  gender, 
+  AVG(age) avg_age  
+FROM buyer   
+WHERE 
+  age < 30 
+GROUP BY 
+  gender, 
+  connection_area 
+HAVING AVG(age) <= 23 
+ORDER BY 
+  connection_area, 
+  gender;
+  ---------------------------------------
+  
+  2/5 + 3/6
+  
+  ----------------------------------------------------
+								Практика: считаем средний чек и конверсию
+1. 
+Посчитайте средний чек по таблице pizza. 
+В итоговой таблице отобразите минимальное, максимальное и среднее значения выручки. 
+Это поможет увидеть, насколько средний чек отличается от максимума и минимума.
+
+select 
+        avg (price*quantity) as srednee,
+        min (price*quantity) as min,
+        max (price*quantity) as max
+from pizza
+------
+2. 
+Посчитайте средний чек для каждого вида пиццы.
+Отобразите название пиццы и средний чек. 
+Отсортируйте таблицу по среднему чеку в порядке убывания.
+
+select 
+        avg (price*quantity) as srednee,
+        name
+from pizza
+group by name
+order by srednee desc
+-----
+
+3.
+Рассчитайте средний чек для вегетарианских и не вегетарианских пицц. 
+Отобразите на экране указатель, является ли пицца вегетарианской, и средний чек.
+Добавьте условие: менеджеры просили не учитывать пиццы с сырным бортиком.
+
+SELECT vegan_marker,   
+AVG(price*quantity) 
+FROM pizza   
+where cheese_side=0 
+GROUP BY vegan_marker   
+ORDER BY vegan_marker DESC
+-------
+
+4.
+Отобразите название пиццы, наличие сырного бортика и средний чек. 
+Отсортируйте таблицу сначала по названию в алфавитном порядке, 
+а потом — по наличию сырного бортика по возрастанию.
+
+select name,
+       cheese_side,
+       avg (price*quantity) as sredn_cena
+from pizza
+group by name, cheese_side
+order by name asc, cheese_side asc
+-------
+
+5.
+Теперь посчитаем конверсию посетителей парка в заказы пиццы. 
+Напомним, конверсия — это отношение числа уникальных посетителей, 
+которые заказали пиццу, к общему количеству уникальных посетителей. 
+Отдел маркетинга сообщает, что за три месяца в парке побывала 1000 посетителей.
+
+SELECT COUNT(DISTINCT (bracelet_id))/1000
+::numeric 
+FROM pizza
+-----------------------
+
+6.
+Рассчитайте конверсию по месяцам. 
+Отобразите в итоговой таблице первый день месяца и конверсию. 
+Отсортируйте таблицу по месяцам в порядке возрастания. 
+Не учитывайте сотрудников парка: номера их браслетов — 
+145738, 145759, 145773, 145807, 145815, 145821, 145873, 145880.
+
+SELECT 
+DATE_TRUNC ('month', date) as data,
+COUNT(DISTINCT(bracelet_id))/1000.0 as conv    
+FROM pizza 
+WHERE bracelet_id NOT IN (145738, 145759, 145773, 145807, 145815, 145821, 145873, 145880) 
+GROUP BY DATE_TRUNC ('month', date)
+ORDER BY (DATE_TRUNC('month', date))
+----------------------
+7.
+А может быть, конверсия связана с размером пиццы? Проверим! 
+Отобразите название и радиус пиццы. Рассчитайте конверсию. 
+Не учитывайте работников компании. 
+Оставьте только те строки, где конверсия выше 3% — такой целевой показатель у менеджеров парка.
+
+SELECT name, 
+radius, 
+COUNT(DISTINCT(bracelet_id))/1000.0 as conv    
+FROM pizza 
+WHERE bracelet_id NOT IN (145738, 145759, 145773, 145807, 145815, 145821, 145873, 145880) 
+GROUP BY name, radius 
+HAVING COUNT(DISTINCT(bracelet_id))/1000.0>0.03;
+----------------------
+
+1.
+Раннее мы обращали внимание, что конверсия немного упала в марте. 
+Рассчитайте показатель DAU за март: узнайте количество уникальных покупателей в этом месяце.
+Отобразите дату и количество уникальных покупателей. 
+Отсортируйте таблицу по дате в порядке возрастания.
+
+SELECT COUNT(DISTINCT(bracelet_id)),
+       date
+FROM pizza
+WHERE date >= '2022-03-01' AND date <= '2022-03-31' 
+GROUP BY date
+------------------------
+
+2.
+Теперь посмотрим динамику по неделям. Рассчитайте WAU: количество уникальных покупателей по неделям.
+Отобразите в таблице номер недели и WAU. Отсортируйте таблицу по номеру недели в порядке возрастания.
+
+SELECT COUNT(DISTINCT(bracelet_id)),
+       EXTRACT(WEEK FROM date) as week_m
+FROM pizza
+GROUP BY week_m
+
+3.
+Давайте проверим, связан ли небольшой провал конверсии в марте с количеством уникальных покупателей. Рассчитайте показатель MAU: количество уникальных покупателей для января, февраля и марта.
+Отобразите в таблице месяц в виде первой даты и MAU. 
+Отсортируйте таблицу по месяцу в порядке возрастания.
+
+SELECT COUNT(DISTINCT(bracelet_id)) AS AA,
+      DATE_TRUNC('month',date) AS AB
+FROM pizza
+WHERE DATE_TRUNC('month', date) >= '2022-01-01' and DATE_TRUNC('month', date) <= '2022-03-01'
+GROUP BY  AB
+ORDER BY AB
+-------------------------
+
+мой вариант
+SELECT EXTRACT ('month' from date) as mesyac, 
+       COUNT(DISTINCT(bracelet_id)) as count_id     
+FROM pizza
+--WHERE DATE_TRUNC('month', date) = '2022-02-01'
+        --OR DATE_TRUNC('month', date) = '2022-03-01'
+		--OR DATE_TRUNC('month', date) = '2022-01-01'
+GROUP BY  mesyac
+
+-------------------
+
+4.
+Теперь посчитаем ARPPU за январь по дням. Отобразите номер дня и значение метрики. 
+Чтобы вычислить ARPPU, разделите общую выручку на число уникальных покупателей.
+
+SELECT
+       EXTRACT ('day' from date) AS denek,
+       sum (price*quantity) / COUNT(DISTINCT(bracelet_id)) as vyruchka
+FROM pizza
+WHERE DATE_TRUNC('month', date) >= '2022-01-01' and DATE_TRUNC('month', date) <= '2022-01-31'
+GROUP BY  denek
+
+-----
+нужно посчитать все рейсы, которые в сентябре осуществили самолёты моделей Boeing, Airbus и остальных
+
+SELECT COUNT(flights.flight_id) AS flights_amount,
+       CASE
+           WHEN model LIKE 'Airbus%' THEN 'Airbus'
+           WHEN model LIKE 'Boeing%' THEN 'Boeing'
+           ELSE 'other'
+       END AS type_aircraft
+FROM aircrafts
+INNER JOIN flights ON flights.aircraft_code = aircrafts.aircraft_code
+WHERE CAST(flights.departure_time AS date) BETWEEN '2018-09-01' AND '2018-09-30'
+GROUP BY type_aircraft; 
